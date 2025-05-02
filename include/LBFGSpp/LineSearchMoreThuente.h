@@ -73,13 +73,37 @@ private:
         const Scalar eps = std::numeric_limits<Scalar>::epsilon();
         if (abs(z3) < eps * abs(z2) || abs(z3) < eps * abs(z1))
         {
+
+            // Handle case when z2 is also zero
+            if (abs(z2) < eps * abs(z1))
+            {
+                exists = false;
+                return b;
+            }
+
             // Minimizer exists if c2 > 0
             exists = (z2 * ba > Scalar(0));
             // Return the end point if the minimizer does not exist
             return exists ? (-Scalar(0.5) * z1 / z2) : b;
         }
 
-        // Now we can assume z3 > 0
+        // Handle case when z2 is zero (but z3 is not)
+        if (abs(z2) < eps * abs(z1))
+        {
+            // The equation reduces to c1 + 3*c3*x^2 = 0
+            // Solution is x = ±sqrt(-c1/(3*c3))
+            // We need c1*c3 < 0 for real roots
+            exists = (z1 * z3 < Scalar(0));
+            if (!exists) return b;
+            
+            const Scalar root = sqrt(-z1 / (Scalar(3) * z3));
+            // Choose the root that corresponds to a minimum (second derivative test)
+            // Second derivative is 6*c3*x, so we need same sign as z3*ba
+            return (z3 * ba > Scalar(0)) ? ((z3 > 0) ? root : -root) : ((z3 > 0) ? -root :root);
+        }
+
+
+        // Now we can assume z3 > 0 and z2 > 0
         // The minimizer is a solution to the equation c1 + 2*c2 * x + 3*c3 * x^2 = 0
         // roots = -(z2/z3) / 3 (+-) sqrt((z2/z3)^2 - 3 * (z1/z3)) / 3
         //
@@ -87,7 +111,7 @@ private:
         // The minimizer exists if v/u <= 1
         const Scalar u = z2 / (Scalar(3) * z3), v = z1 / z2;
         const Scalar vu = v / u;
-        exists = (vu <= Scalar(1));
+        exists = (vu <= Scalar(1) || !std::isfinite(vu));
         if (!exists)
             return b;
 
