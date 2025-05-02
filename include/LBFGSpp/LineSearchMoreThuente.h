@@ -69,8 +69,18 @@ private:
         const Scalar z1 = fba * ba2 - apb * z2 - (a * apb + b * b) * z3;
         // std::cout << "z1 = " << z1 << ", z2 = " << z2 << ", z3 = " << z3 << std::endl;
 
-        // If c3 = z/(b-a)^3 == 0, reduce to quadratic problem
         const Scalar eps = std::numeric_limits<Scalar>::epsilon();
+        if (abs(ba) < eps * (abs(a) + abs(b))) {
+            exists = false;
+            return b;
+        }
+ 
+        if (abs(z1) < eps* abs(z3) && abs(z2) < eps * abs(z3)){
+            exists = false;
+            return b;
+        }
+
+        // If c3 = z/(b-a)^3 == 0, reduce to quadratic problem
         if (abs(z3) < eps * abs(z2) || abs(z3) < eps * abs(z1))
         {
 
