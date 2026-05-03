@@ -4,8 +4,8 @@
 
 using namespace LBFGSpp;
 
-typedef double Scalar;
-typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> Vector;
+using Scalar = double;
+using Vector = Eigen::Matrix<Scalar, Eigen::Dynamic, 1>;
 
 // Example from the roptim R package
 // f(x) = (x[0] - 1)^2 + 4 * (x[1] - x[0]^2)^2 + ... + 4 * (x[end] - x[end - 1]^2)^2
@@ -13,6 +13,7 @@ class Rosenbrock
 {
 private:
     int n;
+
 public:
     Rosenbrock(int n_) : n(n_) {}
     Scalar operator()(const Vector& x, Vector& grad)
